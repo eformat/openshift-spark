@@ -94,7 +94,7 @@ parameters:
 - name: MASTER_NAME
   description: master name used as a service name and a selector
   generate: expression
-  from: "spark-master-[a-z0-9]{4}"
+  from: "spark-master"
   required: true
 - name: WORKER_NAME
   description: worker name used as a selector

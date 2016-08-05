@@ -1,0 +1,59 @@
+kind: Template
+apiVersion: v1
+template: zeppelin
+metadata:
+  name: zeppelin
+objects:
+
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: zeppelin
+    labels:
+      name: zeppelin
+  spec:
+    ports:
+      - protocol: TCP
+        port: 8080
+        targetPort: 8080
+    selector:
+      name: zeppelin
+
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: zeppelin
+  spec:
+    strategy:
+      type: Rolling
+    triggers:
+      - type: ConfigChange
+    replicas: 1
+    selector:
+      name: zeppelin
+    template:
+      metadata:
+        labels:
+          name: zeppelin
+      spec:
+        containers:
+          - name: zeppelin
+            image: ${IMAGE}
+            env:
+              - name: ZEPPELIN_PORT
+                value: "8080"
+              - name: MASTER
+                value: "spark://${MASTER_NAME}:7077"                
+            ports:
+              - containerPort: 8080
+                protocol: TCP
+
+parameters:
+- name: IMAGE
+  description: Name of the Spark master/worker image
+  value: _REPO_/openshift-spark:latest
+- name: MASTER_NAME
+  description: master name used as a service name and a selector
+  generate: expression
+  from: "spark-master"
+  required: true
