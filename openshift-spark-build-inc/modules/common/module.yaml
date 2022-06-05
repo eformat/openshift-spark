@@ -17,7 +17,7 @@ osbs:
   repository: {}
 packages:
   install:
-  - python36
+  - python38
   repositories: []
 ports: []
 version: 1.0

@@ -5,3 +5,8 @@ target/
 .idea/
 *.iml
 *.iws
+
+
+openshift-spark-build/spark-3.2.0-bin-hadoop3.2.tgz
+
+openshift-spark-build/spark-3.0.1-bin-hadoop3.2.tgz

@@ -30,8 +30,8 @@
         # Switch to 'root' user to install 'common' module defined packages
         USER root
         # Install packages defined in the 'common' module
-        RUN yum --setopt=tsflags=nodocs install -y python36 \
-            && rpm -q python36
+        RUN yum --setopt=tsflags=nodocs install -y python38 \
+            && rpm -q python38
         # Set 'common' module defined environment variables
         ENV \
             SPARK_INSTALL="/opt/spark-distro" 

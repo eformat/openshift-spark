@@ -1,25 +1,11 @@
-# Copyright 2019 Red Hat
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-# ------------------------------------------------------------------------
-#
+
 # This is a Dockerfile for the radanalyticsio/openshift-spark:3.0 image.
 
 
 ## START target image radanalyticsio/openshift-spark:3.0
 ## \
     FROM centos:8
+
 
     USER root
 
@@ -53,9 +39,9 @@
 
 ###### START module 'spark:1.0'
 ###### \
-        # Copy 'spark' module general artifacts
+        # Copy 'spark' module general artifacts to '/tmp/artifacts/' destination
         COPY \
-            spark-3.0.1-bin-hadoop3.2.tgz \
+            spark-3.2.0-bin-hadoop3.2.tgz \
             /tmp/artifacts/
         # Copy 'spark' module content
         COPY modules/spark /tmp/scripts/spark
@@ -103,27 +89,21 @@
         # Install packages defined in the 'radanalyticsio/openshift-spark' image
         RUN yum --setopt=tsflags=nodocs install -y java-11-openjdk python3-numpy \
             && rpm -q java-11-openjdk python3-numpy
-        # Set 'radanalyticsio/openshift-spark' image defined environment variables
-        ENV \
-            JBOSS_IMAGE_NAME="radanalyticsio/openshift-spark" \
-            JBOSS_IMAGE_VERSION="3.0" 
         # Set 'radanalyticsio/openshift-spark' image defined labels
         LABEL \
-            io.cekit.version="3.6.0"  \
+            io.cekit.version="3.12.0"  \
             io.openshift.s2i.scripts-url="image:///usr/libexec/s2i"  \
             maintainer="Trevor McKay <tmckay@redhat.com>"  \
-            name="radanalyticsio/openshift-spark"  \
-            sparkversion="3.0.1"  \
-            version="3.0" 
+            sparkversion="3.0.1" 
 ###### /
 ###### END image 'radanalyticsio/openshift-spark:3.0'
+
 
 
     # Switch to 'root' user and remove artifacts and modules
     USER root
     RUN [ ! -d /tmp/scripts ] || rm -rf /tmp/scripts
     RUN [ ! -d /tmp/artifacts ] || rm -rf /tmp/artifacts
-
     # Clear package manager metadata
     RUN yum clean all && [ ! -d /var/cache/yum ] || rm -rf /var/cache/yum
 
