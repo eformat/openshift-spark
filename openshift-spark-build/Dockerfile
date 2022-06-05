@@ -4,8 +4,8 @@
 
 ## START target image radanalyticsio/openshift-spark:3.0
 ## \
-    FROM centos:8
-
+    #FROM centos:8
+    FROM registry.access.redhat.com/ubi8/ubi@sha256:f85554c06bf8f4d712a25d4c0373491f7c7437c578a434c8111c6dfce738559a
 
     USER root
 
