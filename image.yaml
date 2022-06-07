@@ -1,0 +1,39 @@
+schema_version: 1
+
+# The S2I bits are included to pick up the usage script and
+# to give a meaningful error on an attempt to install Spark in
+# a complete image via S2I
+
+version: 3.0
+release: community
+name: radanalyticsio/openshift-spark
+from: centos:8
+labels:
+    - name: maintainer
+      value: Trevor McKay <tmckay@redhat.com>
+    - name: sparkversion
+      value: 3.0.1
+    - name: "io.openshift.s2i.scripts-url"
+      value: "image:///usr/libexec/s2i"
+
+packages:
+    install:
+        - java-11-openjdk
+        # python36 added in the common module
+        - python3-numpy
+
+modules:
+    repositories:
+        - path: modules
+    install:
+        - name: common
+        - name: metrics
+        - name: spark
+        - name: s2i
+run:
+    user: 185
+    entrypoint:
+      - "/entrypoint"
+    cmd:
+      - "/launch.sh"
+    workdir: /tmp

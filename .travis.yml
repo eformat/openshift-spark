@@ -1,0 +1,36 @@
+sudo: required
+dist: trusty
+language: go
+## home folder is /home/travis/gopath/src/github.com/radanalyticsio/oshinko-cli
+services:
+- docker
+stages:
+  - Openshift tests
+  - deploy
+
+before_install:
+- ./.travis.before.install.sh
+
+env:
+  global: OPENSHIFT_VERSION="v3.10"
+
+jobs:
+  include:
+  - stage: Openshift tests
+    name: openshift-spark
+    script: BUILDER=docker make test-e2e
+
+  - name: openshift-spark-inc
+    script: BUILDER=docker make -f Makefile.inc test-e2e
+
+  - name: openshift-spark-comp
+    script: BUILDER=docker make -f Makefile.inc test-e2e-completed
+
+  - stage: deploy
+    name: "Push container images"
+    script: ./.travis.release.images.sh
+
+notifications:
+ email:
+   on_success: never
+   on_failure: never

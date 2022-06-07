@@ -1,0 +1,24 @@
+artifacts: []
+envs:
+- name: SPARK_INSTALL
+  value: /opt/spark-distro
+execute:
+- directory: common
+  module_name: common
+  name: common/install
+  script: install
+labels: []
+modules:
+  install: []
+  repositories: []
+name: common
+osbs:
+  configuration: {}
+  repository: {}
+packages:
+  install:
+  - python38
+  repositories: []
+ports: []
+version: 1.0
+volumes: []

@@ -1,0 +1,38 @@
+#!/bin/sh
+
+SCRIPT_DIR=$(dirname $0)
+ADDED_DIR=${SCRIPT_DIR}/added
+ARTIFACTS_DIR=/tmp/artifacts
+
+# If there is a zero-length spark tarball, find the verison in the
+# name and download from Apache
+fullname=$(find $ARTIFACTS_DIR -name spark-[0-9.]*\.tgz)
+/bin/sh -x $SCRIPT_DIR/check_for_download $fullname
+
+# Make a place for spark to go (dupe what's done in common in case we're standalone)
+if ! [ -d $SPARK_INSTALL ]; then
+    mkdir -p $SPARK_INSTALL/conf
+    ln -sfn $SPARK_INSTALL/distro $SPARK_HOME
+fi
+
+pushd $SPARK_INSTALL
+cp $fullname .
+tar -zxf $(basename $fullname)
+ln -s $(basename $fullname .tgz) distro
+rm $(basename $fullname)
+popd
+
+# Add in the configuration files (from the common module) if they don't already exist
+mv --no-clobber "$SPARK_INSTALL"/conf/* "$SPARK_HOME"/conf/
+
+# Make everything under the spark directory accessible to the group
+chown 185:0 $SPARK_INSTALL/distro && chmod g+rwX $SPARK_INSTALL/distro
+
+# Search for the spark entrypoint file and copy it to $SPARK_INSTALL
+entry=$(find $SPARK_HOME/kubernetes -name entrypoint.sh)
+if [ -n "$entry" ]; then
+    cp $entry $SPARK_INSTALL
+
+    # We want to get rid of the tini invocation
+    sed -i "s@exec .*/tini -s --@exec@" $SPARK_INSTALL/entrypoint.sh
+fi

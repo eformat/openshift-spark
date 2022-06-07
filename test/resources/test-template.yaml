@@ -20,7 +20,6 @@ objects:
         targetPort: 7077
     selector:
       name: ${MASTER_NAME}
-
 - kind: Service
   apiVersion: v1
   metadata:
@@ -55,16 +54,26 @@ objects:
         containers:
           - name: ${MASTER_NAME}
             image: ${SPARK_IMAGE}
+            imagePullPolicy: IfNotPresent
             env:
               - name: SPARK_MASTER_PORT
                 value: "7077"
               - name: SPARK_MASTER_WEBUI_PORT
                 value: "8080"
+              - name: UPDATE_SPARK_CONF_DIR
+                value: /etc/config
             ports:
               - containerPort: 7077
                 protocol: TCP
               - containerPort: 8080
                 protocol: TCP
+            volumeMounts:
+              - name: config-volume
+                mountPath: /etc/config
+        volumes:
+          - name: config-volume
+            configMap:
+              name: test-config
 
 - kind: DeploymentConfig
   apiVersion: v1
@@ -75,7 +84,7 @@ objects:
       type: Rolling
     triggers:
       - type: ConfigChange
-    replicas: 3
+    replicas: 1
     selector:
       name: ${WORKER_NAME}
     template:
@@ -86,20 +95,29 @@ objects:
         containers:
           - name: ${WORKER_NAME}
             image: ${SPARK_IMAGE}
+            imagePullPolicy: IfNotPresent
             env:
               - name: SPARK_MASTER_ADDRESS
                 value: spark://${MASTER_NAME}:7077
               - name: SPARK_MASTER_UI_ADDRESS
                 value: http://${MASTER_NAME}-webui:8080
-
+              - name: UPDATE_SPARK_CONF_DIR
+                value: /etc/config
+            volumeMounts:
+              - name: config-volume
+                mountPath: /etc/config
+        volumes:
+          - name: config-volume
+            configMap:
+              name: test-config
 parameters:
 - name: SPARK_IMAGE
   description: Name of the Spark master/worker image
-  value: radanalyticsio/openshift-spark:2.4-latest
+  value: radanalyticsio/openshift-spark:2.2-latest
 - name: MASTER_NAME
   description: master name used as a service name and a selector
   generate: expression
-  from: "spark-master"
+  from: "spark-master-[a-z0-9]{4}"
   required: true
 - name: WORKER_NAME
   description: worker name used as a selector
